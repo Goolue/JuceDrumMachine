@@ -27,6 +27,7 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
     void buttonClicked (Button* buttonThatWasClicked) override;
 	void comboBoxChanged(ComboBox *comboBoxThatHasChanged) override;
+	void process(float* buffer, int numOfSamples);
 
 private:
 
@@ -37,6 +38,7 @@ private:
 	void disableButtonsAndSliders();
 	void configLable(Label* lbl);
 	void reset();
+	void calcCoef(double sampleRate);
 
 	//GUI elements:
     ScopedPointer<Slider> filterFreqSlider;
@@ -56,6 +58,7 @@ private:
 	float freq;
 	float gain;
 	float q;
+	IIRFilter filter;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterGui)

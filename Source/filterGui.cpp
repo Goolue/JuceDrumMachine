@@ -1,7 +1,9 @@
 #include "filterGui.h"
 
-FilterGui::FilterGui() : type(LowPass), isOn(false), freq(1000), gain(0.0), q(0.0)
+FilterGui::FilterGui() :  type(LowPass), isOn(false), freq(1000), gain(0.0), q(0.0)
 {
+	filter.makeInactive();
+
 	addAndMakeVisible (filterOnBtn = new ToggleButton ("On off btn"));
     filterOnBtn->setButtonText (TRANS("Filter"));
     filterOnBtn->addListener (this);
@@ -64,6 +66,12 @@ FilterGui::~FilterGui()
 }
 
 //==============================================================================
+
+void FilterGui::process(float* buffer, int numOfSamples)
+{
+	filter.processSamples(buffer, numOfSamples);
+}
+
 void FilterGui::resized()
 {
     filterFreqSlider->setBounds (8, 56, proportionOfWidth (0.1075f), proportionOfHeight (0.0594f));
@@ -82,15 +90,23 @@ void FilterGui::resized()
 
 void FilterGui::sliderValueChanged (Slider* sliderThatWasMoved)
 {
-    if (sliderThatWasMoved == filterFreqSlider)
-    {
-    }
-    else if (sliderThatWasMoved == filterQSlider)
-    {
-    }
-    else if (sliderThatWasMoved == gainSlider)
-    {
-    }
+	
+	if (sliderThatWasMoved != nullptr)
+	{
+		float value = sliderThatWasMoved->getValue();
+		if (sliderThatWasMoved == filterFreqSlider)
+		{
+			freq = value;
+		}
+		else if (sliderThatWasMoved == filterQSlider)
+		{
+			q = value;
+		}
+		else if (sliderThatWasMoved == gainSlider)
+		{
+			gain = value;
+		}
+	}
 
 }
 
@@ -103,9 +119,15 @@ void FilterGui::comboBoxChanged(ComboBox *comboBoxThatHasChanged)
 		{
 		case 0:
 			type = LowPass;
+			filterQSlider->setEnabled(false);
+			gainSlider->setEnabled(false);
+			filterTypeCombo->setEnabled(false);
 			break;
 		case 1:
 			type = HighPass;
+			filterQSlider->setEnabled(false);
+			gainSlider->setEnabled(false);
+			filterTypeCombo->setEnabled(false);
 			break;
 		case 2:
 			type = LowShelf;
@@ -131,6 +153,7 @@ void FilterGui::buttonClicked (Button* buttonThatWasClicked)
 		if (filterOnBtn->getToggleState() == false)
 		{
 			disableButtonsAndSliders();
+			filter.makeInactive();
 		}
 		else
 		{
@@ -139,18 +162,20 @@ void FilterGui::buttonClicked (Button* buttonThatWasClicked)
     }
 }
 
-void FilterGui::enableButtonsAndSliders()
+void FilterGui::enableButtonsAndSliders() 
 {
-	DBG("enable");
 	filterFreqSlider->setEnabled(true);
-	filterQSlider->setEnabled(true);
-	gainSlider->setEnabled(true);
-	filterTypeCombo->setEnabled(true);
+	if (type != LowPass && type != HighPass)
+	{
+		filterQSlider->setEnabled(true);
+		gainSlider->setEnabled(true);
+		filterTypeCombo->setEnabled(true);
+	}
+	
 }
 
 void FilterGui::disableButtonsAndSliders()
 {
-	DBG("diable");
 	filterFreqSlider->setEnabled(false);
 	filterQSlider->setEnabled(false);
 	gainSlider->setEnabled(false);
@@ -174,4 +199,30 @@ void FilterGui::reset()
 	filterFreqSlider->setValue(1000);
 	filterQSlider->setValue(0.0);
 	gainSlider->setValue(0.0);
+}
+
+void FilterGui::calcCoef(double sampleRate)
+{
+	switch (type)
+	{
+	case LowPass:
+		filterCoef = filterCoef.makeLowPass(sampleRate, freq);
+		break;
+	case HighPass:
+		filterCoef = filterCoef.makeHighPass(sampleRate, freq);
+		break;
+	case LowShelf:
+		filterCoef = filterCoef.makeLowShelf(sampleRate, freq, q, gain);
+		break;
+	case HighShelf:
+		filterCoef = filterCoef.makeHighShelf(sampleRate, freq, q, gain);
+		break;
+	case Peak:
+		filterCoef = filterCoef.makePeakFilter(sampleRate, freq, q, gain);
+		break;
+	default:
+		DBG("Unknown filter type!");
+		break;
+	}
+	filter.setCoefficients(filterCoef);
 }

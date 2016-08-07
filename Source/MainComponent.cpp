@@ -6,8 +6,7 @@
 #include <vld.h> 
 
 
-class MainContentComponent : public AudioAppComponent,
-	public Thread
+class MainContentComponent : public AudioAppComponent, public Thread
 {
 public:
 	MainContentComponent()
