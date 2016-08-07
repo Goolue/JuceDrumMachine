@@ -2,7 +2,7 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "../Builds/VisualStudio2013/DrumGui.h"
+#include "DrumGui.h"
 #include <vld.h> 
 
 
@@ -18,7 +18,7 @@ public:
 
 		drumArr.add(drum1);
 
-		setSize(300, 200);
+		setSize(600, 400);
 
 		setAudioChannels(0, 2); //0 in, 2 out
 
@@ -125,7 +125,7 @@ public:
 		/*openFileButton.setBounds(10, 10, getWidth() - 20, 20);
 		playButton.setBounds(10, 40, getWidth() - 20, 20);
 		volSlider.setBounds(10, 60, playButton.getWidth() / 2, 40);*/
-	//	drum1.setBounds(10, 10, getWidth() - 20, 80);
+		drum1->setBounds(10, 10, 4 * drum1->getTotalWidth(), 2 * drum1->getTotalHight());
 	}
 
 	void run() override
