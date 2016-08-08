@@ -5,7 +5,6 @@
 #include "DrumGui.h"
 #include <vld.h> 
 
-
 class MainContentComponent : public AudioAppComponent, public Thread
 {
 public:
@@ -14,7 +13,7 @@ public:
 	{
 		addAndMakeVisible(drum1); 
 		drum1->setBounds(10, 10, drum1->getTotalWidth(), 2 * drum1->getTotalHight());
-
+		//drum1->setMainBuffer(&buffers);
 		drumArr.add(drum1);
 
 		setSize(600, 400);
@@ -38,48 +37,15 @@ public:
 
 	void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
 	{
+		this->sampleRate = sampleRate;
+		for (DrumGui* drum : drumArr)
+		{
+			drum->setSampleRate(sampleRate);
+		}
 	}
 
 	void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override
 	{
-		//ReferenceCountedBuffer::Ptr retainedCurrentBuffer(buffToPlay);
-		//if (retainedCurrentBuffer == nullptr) //if the buff is null, output silence
-		//{
-		//	bufferToFill.clearActiveBufferRegion();
-		//	return;
-		//}
-		//AudioSampleBuffer* currentAudioSampleBuffer(retainedCurrentBuffer->getAudioSampleBuffer());
-		//int position = retainedCurrentBuffer->position;
-		//const int numInputChannels = currentAudioSampleBuffer->getNumChannels();
-		//const int numOutputChannels = bufferToFill.buffer->getNumChannels();
-		//int outputSamplesRemaining = bufferToFill.numSamples;
-		//int outputSamplesOffset = 0;
-		//while (outputSamplesRemaining > 0 && position != currentAudioSampleBuffer->getNumSamples())
-		//{
-		//	int bufferSamplesRemaining = currentAudioSampleBuffer->getNumSamples() - position;
-		//	int samplesThisTime = jmin(outputSamplesRemaining, bufferSamplesRemaining); //min of ext buff and our buff
-		//	for (int channel = 0; channel < numOutputChannels; ++channel)
-		//	{
-		//		bufferToFill.buffer->copyFrom(channel,
-		//			bufferToFill.startSample + outputSamplesOffset,
-		//			*currentAudioSampleBuffer,
-		//			channel % numInputChannels,
-		//			position,
-		//			samplesThisTime);
-		//		bufferToFill.buffer->applyGain(channel, bufferToFill.startSample + outputSamplesOffset, 
-		//			samplesThisTime, volume);
-		//	}
-		//	outputSamplesRemaining -= samplesThisTime;
-		//	outputSamplesOffset += samplesThisTime;
-		//	position += samplesThisTime;
-		//}
-		//retainedCurrentBuffer->position = position;
-		//if (retainedCurrentBuffer->position == retainedCurrentBuffer->getAudioSampleBuffer()->getNumSamples())
-		//{
-		//	buffToPlay = nullptr;
-		//	stoppedPlaying = true;
-		//	notify();
-		//}
 		ReferenceCountedArray<ReferenceCountedBuffer> currBuffers(buffers);
 		if (currBuffers.isEmpty()) //if the buff is null, output silence
 		{
@@ -113,6 +79,42 @@ public:
 				}
 			}
 		}
+		//ReferenceCountedArray<DrumGui> currBuffers(buffers);
+		//if (currBuffers.isEmpty()) //if the buff is null, output silence
+		//{
+		//	bufferToFill.clearActiveBufferRegion();
+		//	return;
+		//}
+		//const int outputSamplesRemaining = bufferToFill.numSamples;
+		//for (DrumGui* drum : currBuffers)
+		//{
+		//	if (drum != nullptr)
+		//	{
+		//		ReferenceCountedBuffer* buff = drum->process();
+		//		const int position = buff->getPosition();
+		//		const int buffNumOfSamples = buff->getAudioSampleBuffer()->getNumSamples() - position;
+		//		const int samplesThisTime = jmin(outputSamplesRemaining, buffNumOfSamples); //min of ext buff and our buff
+		//		const int numInputChannels = buff->getAudioSampleBuffer()->getNumChannels();
+		//		const int numOutputChannels = bufferToFill.buffer->getNumChannels();
+		//		for (int channel = 0; channel < numOutputChannels; ++channel)
+		//		{
+		//			float* buffToWriteTo = bufferToFill.buffer->getWritePointer(channel);
+		//			const float* source = buff->getAudioSampleBuffer()->getReadPointer(channel % numInputChannels, position);
+		//			for (int index = 0; index <= samplesThisTime; ++index)
+		//			{
+		//				buffToWriteTo[index] = source[index];
+		//			}
+		//		}
+		//		drum->getBuffToPlay()->setPosition(position + samplesThisTime);
+		//		const int buffPosition = buff->getPosition();
+		//		const int buffSize = buff->getAudioSampleBuffer()->getNumSamples();
+		//		if (buffPosition >= buffSize)
+		//		{
+		//			buffers.removeObject(drum);
+		//		}
+		//	}
+
+		//}
 	}
 
 	void releaseResources() override
@@ -173,6 +175,7 @@ private:
 	DrumGui* drum1 = new DrumGui(&buffers);
 	ReferenceCountedArray<DrumGui> drumArr;
 	bool stopped = false;
+	double sampleRate;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)
 };

@@ -1,8 +1,7 @@
 #include "DrumGui.h"
 
-DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _mainBuffers)
-	: Thread("DrumGui Thread"), volume(0.5), state(Stopped), mainBuffers(_mainBuffers),
-	buffToPlay(nullptr)
+DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
+	: Thread("DrumGui Thread"), volume(1.0), sampleRate(0), state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
 {
 	addAndMakeVisible(&openFileButton);
 	openFileButton.setButtonText("Open file");
@@ -23,11 +22,12 @@ DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _mainBuffers)
 	volLbl->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
 
 	addAndMakeVisible(&volSlider);
-	volSlider.setRange(0.0, 1.0, 0.01);
+	volSlider.setRange(0.0, 5.0, 0.01);
 	volSlider.addListener(this);
 	volSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 	volSlider.showTextBox();
-	volSlider.setValue(0.5);
+	volSlider.setValue(1);
+	volSlider.setSkewFactor(0.6); //TODO: figure out better volume settings
 
 	addAndMakeVisible(&filter);
 
@@ -42,7 +42,7 @@ DrumGui::~DrumGui()
 {
 	volLbl = nullptr;
 	stopThread(4000);
-	mainBuffers = nullptr;
+	mainBuffer = nullptr;
 }
 
 void DrumGui::sliderValueChanged(Slider* slider)
@@ -106,6 +106,22 @@ ReferenceCountedBuffer::Ptr DrumGui::getBuffToPlay() const
 	return buffToPlay;
 }
 
+ReferenceCountedBuffer* DrumGui::process()
+{
+	auto toReturn = createBuffToSend();
+	return toReturn;
+}
+
+void DrumGui::setSampleRate(double rate)
+{
+	sampleRate = rate;
+}
+
+void DrumGui::setMainBuffer(ReferenceCountedArray<DrumGui>* arr)
+{
+	/*mainBuffer = arr;*/
+}
+
 //***********privates***********:
 
 int DrumGui::calcY(Component* above) const
@@ -122,8 +138,6 @@ void DrumGui::changeState(PlayState newState)
 		switch (state)
 		{
 		case Stopping:
-			buffToPlay = nullptr;
-			stoppedPlaying = false;
 			break;
 		case Stopped:
 			playButton.setEnabled(true);
@@ -131,8 +145,13 @@ void DrumGui::changeState(PlayState newState)
 		case Starting:
 			break;
 		case Playing:
-			ReferenceCountedBuffer* toSend = createBuffToSend();
-			mainBuffers->add(toSend);
+			if (sampleRate > 0)
+			{
+				filter.calcCoef(sampleRate);
+				buffToPlay->setPosition(0);
+				ReferenceCountedBuffer* toSend = createBuffToSend();
+				mainBuffer->add(toSend);
+			}
 			break;
 		}
 	}
@@ -200,13 +219,21 @@ void DrumGui::stop()
 	changeState(Stopped);
 }
 
-ReferenceCountedBuffer* DrumGui::createBuffToSend() const
+ReferenceCountedBuffer* DrumGui::createBuffToSend()
 {
 	auto otherBuff = buffToPlay->getAudioSampleBuffer();
 	int numChannels = otherBuff->getNumChannels();
 	int numSamples = otherBuff->getNumSamples();
-	auto toReturn = new ReferenceCountedBuffer("buffToSend", numChannels, numSamples);
+	int position = buffToPlay->getPosition();
+	auto toReturn = new ReferenceCountedBuffer("", numChannels, numSamples);
+	toReturn->setPosition(position);
 	toReturn->loadToBuffer(otherBuff);
-	toReturn->getAudioSampleBuffer()->applyGain(volume);
+	AudioSampleBuffer* sampleBuffer = toReturn->getAudioSampleBuffer();
+	sampleBuffer->applyGain(volume);
+	for (int i = 0; i < numChannels; ++i)
+	{
+		float* toFilter = sampleBuffer->getWritePointer(i);
+		filter.process(toFilter, numSamples);
+	}
 	return toReturn;
 }

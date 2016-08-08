@@ -28,6 +28,7 @@ public:
     void buttonClicked (Button* buttonThatWasClicked) override;
 	void comboBoxChanged(ComboBox *comboBoxThatHasChanged) override;
 	void process(float* buffer, int numOfSamples);
+	void calcCoef(double sampleRate);
 
 private:
 
@@ -38,7 +39,6 @@ private:
 	void disableButtonsAndSliders();
 	void configLable(Label* lbl);
 	void reset();
-	void calcCoef(double sampleRate);
 
 	//GUI elements:
     ScopedPointer<Slider> filterFreqSlider;

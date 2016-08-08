@@ -41,7 +41,7 @@ void ReferenceCountedBuffer::loadToBuffer(AudioSampleBuffer* other)
 {
 	int numChannels = other->getNumChannels();
 	int numSamples= other->getNumSamples();
-	buffer.setSize(numChannels, numSamples, false, true, false);
+	//buffer.setSize(numChannels, numSamples, false, true, false);
 	for (int channelIndex = 0; channelIndex < numChannels; channelIndex++)
 	{
 		buffer.copyFrom(channelIndex, 0, other->getReadPointer(channelIndex), numSamples);

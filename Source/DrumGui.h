@@ -21,7 +21,7 @@ public:
 		Stopping
 	};
 
-	explicit DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _mainBuffers);
+	explicit DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr);
 	~DrumGui();
 
 	void sliderValueChanged(Slider* slider) override;
@@ -31,9 +31,12 @@ public:
 
 	int getTotalHight() const;
 	int getTotalWidth() const;
+	void setSampleRate(double rate);
+	void setMainBuffer(ReferenceCountedArray<DrumGui>* arr);
 
 	float getVolume() const;
 	ReferenceCountedBuffer::Ptr getBuffToPlay() const;
+	ReferenceCountedBuffer* process();
 
 private:
 	//funcs:
@@ -44,7 +47,7 @@ private:
 	void start();
 	void stop();
 	int calcY(Component* above) const;
-	ReferenceCountedBuffer* createBuffToSend() const;
+	ReferenceCountedBuffer* createBuffToSend();
 
 	//GUI elements:
 	TextButton openFileButton;
@@ -54,14 +57,15 @@ private:
 	FilterGui filter;
 
 	//vars:
-	bool stoppedPlaying = false;
+	bool shouldPlay = false;
 	float volume = 0.5;
 	String chosenFilePath;
+	double sampleRate;
 
 	//others:
 	AudioFormatManager formatManager;
 	PlayState state;
-	ReferenceCountedArray<ReferenceCountedBuffer>* mainBuffers; //freed from MainComponent
+	ReferenceCountedArray<ReferenceCountedBuffer>* mainBuffer;
 
 	ReferenceCountedBuffer::Ptr buffToPlay;
 	
