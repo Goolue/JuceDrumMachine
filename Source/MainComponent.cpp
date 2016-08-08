@@ -55,7 +55,7 @@ public:
 		const int outputSamplesRemaining = bufferToFill.numSamples;
 		for (ReferenceCountedBuffer* buff : currBuffers)
 		{
-			if (buff != nullptr)
+			if (buff != nullptr && !checkBuffIsAtEndPosition(buff))
 			{
 				const int position = buff->getPosition();
 				const int buffNumOfSamples = buff->getAudioSampleBuffer()->getNumSamples() - position;
@@ -72,49 +72,15 @@ public:
 					}
 				}
 				buff->setPosition(position + samplesThisTime);
-				const int buffPosition = buff->getPosition();
+				/*const int buffPosition = buff->getPosition();
 				if (buffPosition >= buff->getAudioSampleBuffer()->getNumSamples())
 				{
 					buffers.removeObject(buff);
-				}
+				}*/
+				stopped = true;
+				notify();
 			}
 		}
-		//ReferenceCountedArray<DrumGui> currBuffers(buffers);
-		//if (currBuffers.isEmpty()) //if the buff is null, output silence
-		//{
-		//	bufferToFill.clearActiveBufferRegion();
-		//	return;
-		//}
-		//const int outputSamplesRemaining = bufferToFill.numSamples;
-		//for (DrumGui* drum : currBuffers)
-		//{
-		//	if (drum != nullptr)
-		//	{
-		//		ReferenceCountedBuffer* buff = drum->process();
-		//		const int position = buff->getPosition();
-		//		const int buffNumOfSamples = buff->getAudioSampleBuffer()->getNumSamples() - position;
-		//		const int samplesThisTime = jmin(outputSamplesRemaining, buffNumOfSamples); //min of ext buff and our buff
-		//		const int numInputChannels = buff->getAudioSampleBuffer()->getNumChannels();
-		//		const int numOutputChannels = bufferToFill.buffer->getNumChannels();
-		//		for (int channel = 0; channel < numOutputChannels; ++channel)
-		//		{
-		//			float* buffToWriteTo = bufferToFill.buffer->getWritePointer(channel);
-		//			const float* source = buff->getAudioSampleBuffer()->getReadPointer(channel % numInputChannels, position);
-		//			for (int index = 0; index <= samplesThisTime; ++index)
-		//			{
-		//				buffToWriteTo[index] = source[index];
-		//			}
-		//		}
-		//		drum->getBuffToPlay()->setPosition(position + samplesThisTime);
-		//		const int buffPosition = buff->getPosition();
-		//		const int buffSize = buff->getAudioSampleBuffer()->getNumSamples();
-		//		if (buffPosition >= buffSize)
-		//		{
-		//			buffers.removeObject(drum);
-		//		}
-		//	}
-
-		//}
 	}
 
 	void releaseResources() override
@@ -133,7 +99,7 @@ public:
 	{
 		while (!threadShouldExit())
 		{
-			//checkStopped();
+			checkStopped();
 			wait(-1);
 		}
 	}
@@ -143,32 +109,33 @@ public:
 
 private:
 
-	//void checkStopped()
-	//{
-	//	DBG("checkStopped");
-	//	if (stopped)
-	//	{
-	//		/*for (ReferenceCountedBuffer::Ptr* buff : buffers)
-	//		{
-	//			auto instance = *buff;
-	//			if (instance->getPosition() >= instance->getAudioSampleBuffer()->getNumSamples())
-	//			{
-	//				buffers.removeObject()
-	//			}
-	//		}*/
-	//		for (int i = buffers.size() - 1; i >= 0; i--)
-	//		{
-	//			auto obj = buffers.getObjectPointer(i);
-	//			int position = obj->getPosition();
-	//			int size = obj->getAudioSampleBuffer()->getNumSamples();
-	//			if (position >= size)
-	//			{
-	//				buffers.removeObject(obj);
-	//			}
-	//		}
-	//		stopped = false;
-	//	}
-	//}
+	bool checkBuffIsAtEndPosition(ReferenceCountedBuffer* buff) const
+	{
+		int position = buff->getPosition();
+		int size = buff->getAudioSampleBuffer()->getNumSamples();
+		if (position >= size)
+		{
+			return position;
+		}
+		return false;
+	}
+
+	void checkStopped()
+	{
+		DBG("checkStopped");
+		if (stopped)
+		{
+			for (int i = buffers.size() - 1; i >= 0; i--)
+			{
+				auto obj = buffers.getObjectPointer(i);
+				if (checkBuffIsAtEndPosition(obj))
+				{
+					buffers.removeObject(obj);
+				}
+			}
+			stopped = false;
+		}
+	}
 
 	ReferenceCountedArray<ReferenceCountedBuffer> buffers;
 
