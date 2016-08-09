@@ -1,7 +1,7 @@
 #include "DrumGui.h"
 
 DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
-	: Thread("DrumGui Thread"), volume(1.0), sampleRate(0), state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
+	: Thread("DrumGui Thread"), sampleRate(0), state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
 {
 	addAndMakeVisible(&openFileButton);
 	openFileButton.setButtonText("Open file");
@@ -13,21 +13,23 @@ DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
 	playButton.setColour(TextButton::buttonColourId, Colours::green);
 	playButton.setEnabled(false);
 
-	addAndMakeVisible(volLbl = new Label("volume lable",
+	addAndMakeVisible(&volume);
+
+	/*addAndMakeVisible(volLbl = new Label("volume lable",
 		TRANS("Volume")));
 	volLbl->setFont(Font(15.00f, Font::plain));
 	volLbl->setJustificationType(Justification::centred);
 	volLbl->setEditable(false, false, false);
 	volLbl->setColour(TextEditor::textColourId, Colours::black);
-	volLbl->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+	volLbl->setColour(TextEditor::backgroundColourId, Colour(0x00000000));*/
 
-	addAndMakeVisible(&volSlider);
-	volSlider.setRange(0.0, 5.0, 0.01);
-	volSlider.addListener(this);
-	volSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-	volSlider.showTextBox();
-	volSlider.setValue(1);
-	volSlider.setSkewFactor(0.6); //TODO: figure out better volume settings
+	//addAndMakeVisible(&volSlider);
+	//volSlider.setRange(0.0, 5.0, 0.01);
+	//volSlider.addListener(this);
+	//volSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+	//volSlider.showTextBox();
+	//volSlider.setValue(1);
+	//volSlider.setSkewFactor(0.6); //TODO: figure out better volume settings
 
 	addAndMakeVisible(&filter);
 
@@ -40,17 +42,17 @@ DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
 
 DrumGui::~DrumGui()
 {
-	volLbl = nullptr;
+	//volLbl = nullptr;
 	stopThread(4000);
 	mainBuffer = nullptr;
 }
 
 void DrumGui::sliderValueChanged(Slider* slider)
 {
-	if (slider == &volSlider)
+	/*if (slider == &volSlider)
 	{
 		volume = volSlider.getValue();
-	}
+	}*/
 }
 
 void DrumGui::buttonClicked(Button* button)
@@ -69,9 +71,11 @@ void DrumGui::resized()
 {
 	playButton.setBounds(0, 0, 100, 100);
 	openFileButton.setBounds(playButton.getX() + playButton.getWidth() + 5, playButton.getY(), 50, 20);
-	volLbl->setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight() + 5, 60, 20);
-	volSlider.setBounds(volLbl->getX() + 5, volLbl->getY() + volLbl->getHeight() + 5, 60, 40);
 	filter.setBounds(0, calcY (&playButton), 1200, 800);
+	volume.setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight(), 130, 120);
+	volume.toFront(false);
+	//volLbl->setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight() + 5, 60, 20);
+	//volSlider.setBounds(volLbl->getX() + 5, volLbl->getY() + volLbl->getHeight() + 5, 60, 40);
 
 }
 
@@ -88,18 +92,18 @@ void DrumGui::run()
 int DrumGui::getTotalHight() const
 {
 	return openFileButton.getHeight() + playButton.getHeight() +
-		volSlider.getHeight();
+		volume.getHeight();
 }
 
 int DrumGui::getTotalWidth() const
 {
-	return jmax(openFileButton.getWidth(), playButton.getWidth() + volSlider.getHeight());
+	return jmax(openFileButton.getWidth(), playButton.getWidth() + volume.getWidth());
 }
 
-float DrumGui::getVolume() const
-{
-	return volume;
-}
+//float DrumGui::getVolume() const
+//{
+//	return volume;
+//}
 
 ReferenceCountedBuffer::Ptr DrumGui::getBuffToPlay() const
 {
@@ -115,6 +119,7 @@ ReferenceCountedBuffer* DrumGui::process()
 void DrumGui::setSampleRate(double rate)
 {
 	sampleRate = rate;
+	volume.setSampleRate(rate);
 }
 
 void DrumGui::setMainBuffer(ReferenceCountedArray<DrumGui>* arr)
@@ -229,7 +234,7 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 	toReturn->setPosition(position);
 	toReturn->loadToBuffer(otherBuff);
 	AudioSampleBuffer* sampleBuffer = toReturn->getAudioSampleBuffer();
-	sampleBuffer->applyGain(volume);
+	volume.process(sampleBuffer);
 	for (int i = 0; i < numChannels; ++i)
 	{
 		float* toFilter = sampleBuffer->getWritePointer(i);

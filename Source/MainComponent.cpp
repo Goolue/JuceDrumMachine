@@ -72,11 +72,6 @@ public:
 					}
 				}
 				buff->setPosition(position + samplesThisTime);
-				/*const int buffPosition = buff->getPosition();
-				if (buffPosition >= buff->getAudioSampleBuffer()->getNumSamples())
-				{
-					buffers.removeObject(buff);
-				}*/
 				stopped = true;
 				notify();
 			}
@@ -122,7 +117,6 @@ private:
 
 	void checkStopped()
 	{
-		DBG("checkStopped");
 		if (stopped)
 		{
 			for (int i = buffers.size() - 1; i >= 0; i--)

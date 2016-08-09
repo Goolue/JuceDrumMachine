@@ -2,6 +2,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"
 #include "FilterGui.h"
+#include "../Builds/VisualStudio2013/VolumeGui.h"
 
 using namespace juce;
 
@@ -34,7 +35,7 @@ public:
 	void setSampleRate(double rate);
 	void setMainBuffer(ReferenceCountedArray<DrumGui>* arr);
 
-	float getVolume() const;
+	//float getVolume() const;
 	ReferenceCountedBuffer::Ptr getBuffToPlay() const;
 	ReferenceCountedBuffer* process();
 
@@ -52,13 +53,14 @@ private:
 	//GUI elements:
 	TextButton openFileButton;
 	TextButton playButton;
-	ScopedPointer<Label> volLbl;
-	Slider volSlider;
+	VolumeGui volume;
+	//ScopedPointer<Label> volLbl;
+	//Slider volSlider;
 	FilterGui filter;
 
 	//vars:
 	bool shouldPlay = false;
-	float volume = 0.5;
+	//float volume = 0.5;
 	String chosenFilePath;
 	double sampleRate;
 
