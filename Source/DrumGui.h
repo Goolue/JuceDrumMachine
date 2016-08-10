@@ -35,7 +35,6 @@ public:
 	void setSampleRate(double rate);
 	void setMainBuffer(ReferenceCountedArray<DrumGui>* arr);
 
-	//float getVolume() const;
 	ReferenceCountedBuffer::Ptr getBuffToPlay() const;
 	ReferenceCountedBuffer* process();
 
@@ -60,7 +59,6 @@ private:
 
 	//vars:
 	bool shouldPlay = false;
-	//float volume = 0.5;
 	String chosenFilePath;
 	double sampleRate;
 

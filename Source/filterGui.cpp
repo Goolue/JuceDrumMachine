@@ -50,7 +50,7 @@ FilterGui::FilterGui() :  type(LowPass), isOn(false), freq(1000), gain(1.0), q(1
 	reset();
 	filter.makeInactive();
 
-    setSize (600, 400);
+    setSize (1400, 2000);
 }
 
 FilterGui::~FilterGui()
@@ -73,18 +73,29 @@ void FilterGui::process(float* buffer, int numOfSamples)
 
 void FilterGui::resized()
 {
-    filterFreqSlider->setBounds (8, 56, proportionOfWidth (0.1075f), proportionOfHeight (0.0594f));
+    filterOnBtn->setBounds (0, 0, 60, 40);
+	
+	freqLbl->setBounds(filterOnBtn->getX() + 5, filterOnBtn->getY() + filterOnBtn->getHeight(), 90, 24);
+	
+	filterFreqSlider->setBounds(freqLbl->getX(), freqLbl->getY() + freqLbl->getHeight(),
+		100, 50);
+	
+	qLbl->setBounds(freqLbl->getX() + freqLbl->getWidth() + 5, freqLbl->getY(), 103, 24);
+    
+	filterQSlider->setBounds(qLbl->getX() + 5, qLbl->getY() + qLbl->getHeight(), 
+		70, 50);
+    
 	typeLbl->setBounds(filterFreqSlider->getX(), filterFreqSlider->getY() + 
-		filterFreqSlider->getHeight() + 5, filterFreqSlider->getWidth(), 24);
-	filterTypeCombo->setBounds(typeLbl->getX(), typeLbl->getY() +
-		typeLbl->getHeight() + 5, typeLbl->getWidth(), 20);
-    filterOnBtn->setBounds (8, 8, proportionOfWidth (0.0573f), proportionOfHeight (0.0339f));
-    freqLbl->setBounds (28, 32, 103, 24);
-    filterQSlider->setBounds (140, 56, proportionOfWidth (0.0688f), proportionOfHeight (0.0594f));
-    qLbl->setBounds (140, 32, 103, 24);
-	gainLbl->setBounds(filterTypeCombo->getX() + filterTypeCombo->getWidth() + 5, filterQSlider->getY() +
-		filterQSlider->getHeight() + 5, 103, 24);
-    gainSlider->setBounds (gainLbl->getX(), gainLbl->getY() + 30, proportionOfWidth (0.0688f), proportionOfHeight (0.0594f));
+		filterFreqSlider->getHeight(), filterFreqSlider->getWidth() - 5, 24);
+	
+	filterTypeCombo->setBounds(typeLbl->getX(), typeLbl->getY() + typeLbl->getHeight(),
+		typeLbl->getWidth(), 20);
+	
+	gainLbl->setBounds(filterTypeCombo->getX() + filterTypeCombo->getWidth(), filterQSlider->getY() +
+		filterQSlider->getHeight(), 103, 24);
+    
+	gainSlider->setBounds (gainLbl->getX() + 10, gainLbl->getY() + gainLbl->getHeight(), 
+		70, 50);
 }
 
 void FilterGui::sliderValueChanged (Slider* sliderThatWasMoved)
@@ -235,4 +246,15 @@ void FilterGui::calcCoef(double sampleRate)
 	{
 		filter.makeInactive();
 	}
+}
+
+int FilterGui::getTotalWidth() const
+{
+	return filterFreqSlider->getWidth() + qLbl->getWidth() + 10;
+}
+
+int FilterGui::getTotalHight() const
+{
+	return filterOnBtn->getHeight() + freqLbl->getHeight() + filterQSlider->getHeight() + 
+		qLbl->getHeight() + gainLbl->getHeight() + gainSlider->getHeight();
 }

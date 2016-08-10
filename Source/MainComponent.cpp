@@ -12,11 +12,18 @@ public:
 		: Thread("Background Thread")
 	{
 		addAndMakeVisible(drum1); 
-		drum1->setBounds(10, 10, drum1->getTotalWidth(), 2 * drum1->getTotalHight());
-		//drum1->setMainBuffer(&buffers);
 		drumArr.add(drum1);
 
-		setSize(600, 400);
+		addAndMakeVisible(drum2);
+		drumArr.add(drum2);
+
+		addAndMakeVisible(drum3);
+		drumArr.add(drum3);
+
+		addAndMakeVisible(drum4);
+		drumArr.add(drum4);
+
+		setSize(500, 620);
 
 		setAudioChannels(0, 2); //0 in, 2 out
 
@@ -84,10 +91,12 @@ public:
 
 	void resized() override
 	{
-		/*openFileButton.setBounds(10, 10, getWidth() - 20, 20);
-		playButton.setBounds(10, 40, getWidth() - 20, 20);
-		volSlider.setBounds(10, 60, playButton.getWidth() / 2, 40);*/
-		drum1->setBounds(10, 10, 4 * drum1->getTotalWidth(), 2 * drum1->getTotalHight());
+		drum1->setBounds(0, 0, drum1->getTotalWidth(), drum1->getTotalHight());
+		drum2->setBounds(drum1->getX() + drum1->getTotalWidth() + 10, 0,
+			drum2->getTotalWidth(), drum2->getTotalHight());
+		drum3->setBounds(drum1->getX(), drum1->getY() + drum1->getTotalHight(),
+			drum3->getTotalWidth(), drum3->getTotalHight());
+		drum4->setBounds(drum2->getX(), drum3->getY(), drum4->getTotalWidth(), drum4->getTotalHight());
 	}
 
 	void run() override
@@ -98,7 +107,6 @@ public:
 			wait(-1);
 		}
 	}
-
 
 //*****************PRIVATE:*****************
 
@@ -134,6 +142,9 @@ private:
 	ReferenceCountedArray<ReferenceCountedBuffer> buffers;
 
 	DrumGui* drum1 = new DrumGui(&buffers);
+	DrumGui* drum2 = new DrumGui(&buffers);
+	DrumGui* drum3 = new DrumGui(&buffers);
+	DrumGui* drum4 = new DrumGui(&buffers);
 	ReferenceCountedArray<DrumGui> drumArr;
 	bool stopped = false;
 	double sampleRate;

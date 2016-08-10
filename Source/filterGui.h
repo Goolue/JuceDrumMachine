@@ -29,6 +29,8 @@ public:
 	void comboBoxChanged(ComboBox *comboBoxThatHasChanged) override;
 	void process(float* buffer, int numOfSamples);
 	void calcCoef(double sampleRate);
+	int getTotalWidth() const;
+	int getTotalHight() const;
 
 private:
 

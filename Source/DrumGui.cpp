@@ -15,25 +15,9 @@ DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
 
 	addAndMakeVisible(&volume);
 
-	/*addAndMakeVisible(volLbl = new Label("volume lable",
-		TRANS("Volume")));
-	volLbl->setFont(Font(15.00f, Font::plain));
-	volLbl->setJustificationType(Justification::centred);
-	volLbl->setEditable(false, false, false);
-	volLbl->setColour(TextEditor::textColourId, Colours::black);
-	volLbl->setColour(TextEditor::backgroundColourId, Colour(0x00000000));*/
-
-	//addAndMakeVisible(&volSlider);
-	//volSlider.setRange(0.0, 5.0, 0.01);
-	//volSlider.addListener(this);
-	//volSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-	//volSlider.showTextBox();
-	//volSlider.setValue(1);
-	//volSlider.setSkewFactor(0.6); //TODO: figure out better volume settings
-
 	addAndMakeVisible(&filter);
 
-	setSize(filter.getWidth(), 1000);
+	setSize(filter.getWidth(), 1600);
 
 	formatManager.registerBasicFormats();
 	startThread();
@@ -71,12 +55,10 @@ void DrumGui::resized()
 {
 	playButton.setBounds(0, 0, 100, 100);
 	openFileButton.setBounds(playButton.getX() + playButton.getWidth() + 5, playButton.getY(), 50, 20);
-	filter.setBounds(0, calcY (&playButton), 1200, 800);
-	volume.setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight(), 130, 120);
+	filter.setBounds(0, calcY (&playButton), filter.getTotalWidth(), filter.getTotalHight());
+	volume.setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight(), 
+		volume.getTotalWidth(), volume.getHeight());
 	volume.toFront(false);
-	//volLbl->setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight() + 5, 60, 20);
-	//volSlider.setBounds(volLbl->getX() + 5, volLbl->getY() + volLbl->getHeight() + 5, 60, 40);
-
 }
 
 void DrumGui::run()
@@ -91,8 +73,7 @@ void DrumGui::run()
 
 int DrumGui::getTotalHight() const
 {
-	return openFileButton.getHeight() + playButton.getHeight() +
-		volume.getHeight();
+	return playButton.getHeight() + filter.getTotalHight();
 }
 
 int DrumGui::getTotalWidth() const
@@ -234,11 +215,11 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 	toReturn->setPosition(position);
 	toReturn->loadToBuffer(otherBuff);
 	AudioSampleBuffer* sampleBuffer = toReturn->getAudioSampleBuffer();
-	volume.process(sampleBuffer);
 	for (int i = 0; i < numChannels; ++i)
 	{
 		float* toFilter = sampleBuffer->getWritePointer(i);
 		filter.process(toFilter, numSamples);
 	}
+	volume.process(sampleBuffer);
 	return toReturn;
 }
