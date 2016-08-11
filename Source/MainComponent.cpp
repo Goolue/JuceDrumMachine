@@ -2,7 +2,7 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "DrumGui.h"
+#include "../Builds/VisualStudio2013/MidiHandler.h"
 #include <vld.h> 
 
 class MainContentComponent : public AudioAppComponent, public Thread
@@ -23,7 +23,10 @@ public:
 		addAndMakeVisible(drum4);
 		drumArr.add(drum4);
 
-		setSize(500, 620);
+		addAndMakeVisible(midiHandler);
+		midiHandler.matchMidiNoteToDrum(drumArr);
+
+		setSize(500, 700);
 
 		setAudioChannels(0, 2); //0 in, 2 out
 
@@ -87,16 +90,19 @@ public:
 
 	void releaseResources() override
 	{
+		buffers.clear();
 	}
 
 	void resized() override
 	{
-		drum1->setBounds(0, 0, drum1->getTotalWidth(), drum1->getTotalHight());
+		drum1->setBounds(10, 0, drum1->getTotalWidth(), drum1->getTotalHight());
 		drum2->setBounds(drum1->getX() + drum1->getTotalWidth() + 10, 0,
 			drum2->getTotalWidth(), drum2->getTotalHight());
 		drum3->setBounds(drum1->getX(), drum1->getY() + drum1->getTotalHight(),
 			drum3->getTotalWidth(), drum3->getTotalHight());
 		drum4->setBounds(drum2->getX(), drum3->getY(), drum4->getTotalWidth(), drum4->getTotalHight());
+
+		midiHandler.setBounds(0, drum4->getY() + drum4->getTotalHight(), 70, 20);
 	}
 
 	void run() override
@@ -145,7 +151,10 @@ private:
 	DrumGui* drum2 = new DrumGui(&buffers);
 	DrumGui* drum3 = new DrumGui(&buffers);
 	DrumGui* drum4 = new DrumGui(&buffers);
+
 	ReferenceCountedArray<DrumGui> drumArr;
+	MidiHandler midiHandler;
+
 	bool stopped = false;
 	double sampleRate;
 

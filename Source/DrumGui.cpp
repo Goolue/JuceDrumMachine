@@ -1,7 +1,8 @@
 #include "DrumGui.h"
 
 DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
-	: Thread("DrumGui Thread"), sampleRate(0), state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
+	: Thread("DrumGui Thread"), sampleRate(0), currVelovity(1),
+	state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
 {
 	addAndMakeVisible(&openFileButton);
 	openFileButton.setButtonText("Open file");
@@ -55,7 +56,8 @@ void DrumGui::resized()
 {
 	playButton.setBounds(0, 0, 100, 100);
 	openFileButton.setBounds(playButton.getX() + playButton.getWidth() + 5, playButton.getY(), 50, 20);
-	filter.setBounds(0, calcY (&playButton), filter.getTotalWidth(), filter.getTotalHight());
+	filter.setBounds(0, playButton.getY() + playButton.getHeight() + 5, 
+		filter.getTotalWidth(), filter.getTotalHight());
 	volume.setBounds(openFileButton.getX(), openFileButton.getY() + openFileButton.getHeight(), 
 		volume.getTotalWidth(), volume.getHeight());
 	volume.toFront(false);
@@ -108,12 +110,14 @@ void DrumGui::setMainBuffer(ReferenceCountedArray<DrumGui>* arr)
 	/*mainBuffer = arr;*/
 }
 
-//***********privates***********:
-
-int DrumGui::calcY(Component* above) const
+void DrumGui::click(float velocity)
 {
-	return above->getY() + above->getHeight() + 5;
+	currVelovity = velocity;
+	start();
+	currVelovity = 1;
 }
+
+//***********privates***********:
 
 void DrumGui::changeState(PlayState newState)
 {
@@ -131,7 +135,7 @@ void DrumGui::changeState(PlayState newState)
 		case Starting:
 			break;
 		case Playing:
-			if (sampleRate > 0)
+			if (sampleRate > 0 && buffToPlay != nullptr)
 			{
 				filter.calcCoef(sampleRate);
 				buffToPlay->setPosition(0);
@@ -220,6 +224,6 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 		float* toFilter = sampleBuffer->getWritePointer(i);
 		filter.process(toFilter, numSamples);
 	}
-	volume.process(sampleBuffer);
+	volume.process(sampleBuffer, currVelovity);
 	return toReturn;
 }

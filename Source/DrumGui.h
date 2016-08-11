@@ -34,6 +34,7 @@ public:
 	int getTotalWidth() const;
 	void setSampleRate(double rate);
 	void setMainBuffer(ReferenceCountedArray<DrumGui>* arr);
+	void click(float velocity);
 
 	ReferenceCountedBuffer::Ptr getBuffToPlay() const;
 	ReferenceCountedBuffer* process();
@@ -46,7 +47,6 @@ private:
 	void checkForPathToOpen();
 	void start();
 	void stop();
-	int calcY(Component* above) const;
 	ReferenceCountedBuffer* createBuffToSend();
 
 	//GUI elements:
@@ -61,6 +61,7 @@ private:
 	bool shouldPlay = false;
 	String chosenFilePath;
 	double sampleRate;
+	float currVelovity;
 
 	//others:
 	AudioFormatManager formatManager;
