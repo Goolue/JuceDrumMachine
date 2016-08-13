@@ -78,7 +78,7 @@ public:
 					const float* source = buff->getAudioSampleBuffer()->getReadPointer(channel % numInputChannels, position);
 					for (int index = 0; index <= samplesThisTime; ++index)
 					{
-						buffToWriteTo[index] = source[index];
+						buffToWriteTo[index] += source[index];
 					}
 				}
 				buff->setPosition(position + samplesThisTime);
@@ -95,7 +95,7 @@ public:
 
 	void resized() override
 	{
-		drum1->setBounds(10, 0, drum1->getTotalWidth(), drum1->getTotalHight());
+		drum1->setBounds(10, 10, drum1->getTotalWidth(), drum1->getTotalHight());
 		drum2->setBounds(drum1->getX() + drum1->getTotalWidth() + 10, 0,
 			drum2->getTotalWidth(), drum2->getTotalHight());
 		drum3->setBounds(drum1->getX(), drum1->getY() + drum1->getTotalHight(),
