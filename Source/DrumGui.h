@@ -53,8 +53,6 @@ private:
 	TextButton openFileButton;
 	TextButton playButton;
 	VolumeGui volume;
-	//ScopedPointer<Label> volLbl;
-	//Slider volSlider;
 	FilterGui filter;
 
 	//vars:
