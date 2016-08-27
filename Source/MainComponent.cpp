@@ -9,7 +9,7 @@ class MainContentComponent : public AudioAppComponent, public Thread
 {
 public:
 	MainContentComponent()
-		: Thread("Background Thread")
+		: Thread("Background Thread"), stopped(false), sampleRate(0)
 	{
 		addAndMakeVisible(drum1); 
 		drumArr.add(drum1);
@@ -44,9 +44,10 @@ public:
 		}
 	}
 
-
+	//called when thr app firt loads
 	void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
 	{
+		//pass the sample rate to each DrumGui
 		this->sampleRate = sampleRate;
 		for (DrumGui* drum : drumArr)
 		{
@@ -54,6 +55,7 @@ public:
 		}
 	}
 
+	//called by system to request audio
 	void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override
 	{
 		ReferenceCountedArray<ReferenceCountedBuffer> currBuffers(buffers);
@@ -63,6 +65,8 @@ public:
 			return;
 		}
 		const int outputSamplesRemaining = bufferToFill.numSamples;
+
+		//sum the fuffers in the array
 		for (ReferenceCountedBuffer* buff : currBuffers)
 		{
 			if (buff != nullptr && !checkBuffIsAtEndPosition(buff))
@@ -82,7 +86,7 @@ public:
 					}
 				}
 				buff->setPosition(position + samplesThisTime);
-				stopped = true;
+				stopped = true; //set flag for the background thread
 				notify();
 			}
 		}
@@ -102,9 +106,10 @@ public:
 			drum3->getTotalWidth(), drum3->getTotalHight());
 		drum4->setBounds(drum2->getX(), drum3->getY(), drum4->getTotalWidth(), drum4->getTotalHight());
 
-		midiHandler.setBounds(0, drum4->getY() + drum4->getTotalHight(), 70, 20);
+		midiHandler.setBounds(0, drum4->getY() + drum4->getTotalHight(), 200, 20);
 	}
 
+	//the background thread's run func
 	void run() override
 	{
 		while (!threadShouldExit())
@@ -129,6 +134,8 @@ private:
 		return false;
 	}
 
+	//this function checks the stopped flag, if true cleans all
+	//buffers that have played al of their data
 	void checkStopped()
 	{
 		if (stopped)
@@ -145,17 +152,17 @@ private:
 		}
 	}
 
-	ReferenceCountedArray<ReferenceCountedBuffer> buffers;
+	ReferenceCountedArray<ReferenceCountedBuffer> buffers; //holds buffers sent from the drums
 
 	DrumGui* drum1 = new DrumGui(&buffers);
 	DrumGui* drum2 = new DrumGui(&buffers);
 	DrumGui* drum3 = new DrumGui(&buffers);
 	DrumGui* drum4 = new DrumGui(&buffers);
 
-	ReferenceCountedArray<DrumGui> drumArr;
+	ReferenceCountedArray<DrumGui> drumArr; //holds all drums
 	MidiHandler midiHandler;
 
-	bool stopped = false;
+	bool stopped;
 	double sampleRate;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)

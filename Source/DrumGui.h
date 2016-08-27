@@ -6,6 +6,7 @@
 
 using namespace juce;
 
+//This class represent a single drum instance in the system. Each drum works seperatly.
 class DrumGui : public Component,
 				public Button::Listener,
 				public Slider::Listener,
@@ -13,7 +14,6 @@ class DrumGui : public Component,
 				public Thread
 {
 public:
-
 	enum PlayState
 	{
 		Stopped,
@@ -30,24 +30,26 @@ public:
 	void resized() override;
 	void run() override;
 
+	//use these two functions to get the correct hight / width
 	int getTotalHight() const;
 	int getTotalWidth() const;
+
 	void setSampleRate(double rate);
 	void setMainBuffer(ReferenceCountedArray<DrumGui>* arr);
-	void click(float velocity);
-
-	ReferenceCountedBuffer::Ptr getBuffToPlay() const;
-	ReferenceCountedBuffer* process();
+	void click(float velocity); //called by the midiHandler to click the playBtn
 
 private:
 	//funcs:
 	void changeState(PlayState newState);
 	void openButtonClicked();
 	void playButtonClicked();
-	void checkForPathToOpen();
+	void checkForPathToOpen(); //called by background thread to check if a file has been opened
+							  // and if so loads it into buffToPlay
 	void start();
 	void stop();
-	ReferenceCountedBuffer* createBuffToSend();
+	ReferenceCountedBuffer* createBuffToSend(); //creates a buffer with the sample
+												//and aplies the FX to it
+	AudioSampleBuffer* adjustSampleRate(AudioSampleBuffer* buffer, float fileSampleRate);
 
 	//GUI elements:
 	TextButton openFileButton;
@@ -56,7 +58,6 @@ private:
 	FilterGui filter;
 
 	//vars:
-	bool shouldPlay = false;
 	String chosenFilePath;
 	double sampleRate;
 	float currVelovity;
@@ -65,7 +66,7 @@ private:
 	AudioFormatManager formatManager;
 	PlayState state;
 	ReferenceCountedArray<ReferenceCountedBuffer>* mainBuffer;
-
+	LagrangeInterpolator interpolator;
 	ReferenceCountedBuffer::Ptr buffToPlay;
 	
 };

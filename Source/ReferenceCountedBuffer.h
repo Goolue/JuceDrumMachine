@@ -8,17 +8,17 @@ public:
 
 	ReferenceCountedBuffer(const String& nameToUse,	int numChannels, int numSamples);
 	~ReferenceCountedBuffer();
-	AudioSampleBuffer* getAudioSampleBuffer();
+	juce::AudioSampleBuffer* getAudioSampleBuffer();
 	int getPosition() const;
 	void setPosition(int newPosition);
 	void resetPosition();
 	String getName() const;
-	void loadToBuffer(AudioSampleBuffer* other);
+	void loadToBuffer(juce::AudioSampleBuffer* other);
 
 private:
 	int position;
 	String name;
-	AudioSampleBuffer buffer;
+	juce::AudioSampleBuffer buffer;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReferenceCountedBuffer)
 };

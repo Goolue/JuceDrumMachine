@@ -83,22 +83,6 @@ int DrumGui::getTotalWidth() const
 	return jmax(openFileButton.getWidth(), playButton.getWidth() + volume.getWidth());
 }
 
-//float DrumGui::getVolume() const
-//{
-//	return volume;
-//}
-
-ReferenceCountedBuffer::Ptr DrumGui::getBuffToPlay() const
-{
-	return buffToPlay;
-}
-
-ReferenceCountedBuffer* DrumGui::process()
-{
-	auto toReturn = createBuffToSend();
-	return toReturn;
-}
-
 void DrumGui::setSampleRate(double rate)
 {
 	sampleRate = rate;
@@ -138,9 +122,10 @@ void DrumGui::changeState(PlayState newState)
 			if (sampleRate > 0 && buffToPlay != nullptr)
 			{
 				filter.calcCoef(sampleRate);
-				buffToPlay->setPosition(0);
+				buffToPlay->setPosition(0); //make sure the buffers position is at the start
 				ReferenceCountedBuffer* toSend = createBuffToSend();
-				mainBuffer->add(toSend);
+				mainBuffer->add(toSend); //add the buffer to the array so 
+										//the MainComponent can play it
 			}
 			break;
 		}
@@ -183,7 +168,19 @@ void DrumGui::checkForPathToOpen()
 				reader->numChannels,
 				reader->lengthInSamples);
 
+			float fileSampleRate = reader->sampleRate;
+			DBG("fileSampleRate: " + String(fileSampleRate));
 			reader->read(newBuffer->getAudioSampleBuffer(), 0, reader->lengthInSamples, 0, true, true);
+			
+			//if the file's sample rate != our sample rate, resample it
+			if (sampleRate != fileSampleRate)
+			{
+				DBG("adjusting sample rate.");
+				AudioSampleBuffer* correctedBuff = adjustSampleRate(newBuffer->getAudioSampleBuffer(), fileSampleRate);
+				newBuffer->loadToBuffer(correctedBuff);
+				delete(correctedBuff);
+			}
+
 			buffToPlay = nullptr; //clean it
 			buffToPlay = newBuffer;
 
@@ -225,5 +222,26 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 		filter.process(toFilter, numSamples);
 	}
 	volume.process(sampleBuffer, currVelovity);
+	return toReturn;
+}
+
+AudioSampleBuffer* DrumGui::adjustSampleRate(AudioSampleBuffer* buffer, float fileSampleRate)
+{
+	const double ratio = fileSampleRate / sampleRate;
+	const int length = buffer->getNumSamples();
+	const int newLength = length * (1 / ratio);
+	int numChannels = buffer->getNumChannels();
+	float** arr = new float*[numChannels];
+	for (int i = 0; i < numChannels; ++i)
+	{
+		interpolator.reset();
+		const float* toReadFrom = buffer->getReadPointer(i);
+		float* toWriteTo = new float[newLength];
+		interpolator.process(ratio, toReadFrom, toWriteTo, newLength);
+		arr[i] = toWriteTo;
+	}
+	AudioSampleBuffer* toReturn = new AudioSampleBuffer(arr, numChannels, 0, newLength);
+	toReturn->setDataToReferTo(arr, numChannels, newLength);
+	delete(arr);
 	return toReturn;
 }
