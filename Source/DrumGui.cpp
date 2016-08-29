@@ -1,6 +1,6 @@
 #include "DrumGui.h"
 
-DrumGui::DrumGui(ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
+DrumGui::DrumGui(juce::ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
 	: Thread("DrumGui Thread"), sampleRate(0), currVelovity(1),
 	state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
 {
@@ -89,7 +89,7 @@ void DrumGui::setSampleRate(double rate)
 	volume.setSampleRate(rate);
 }
 
-void DrumGui::setMainBuffer(ReferenceCountedArray<DrumGui>* arr)
+void DrumGui::setMainBuffer(juce::ReferenceCountedArray<DrumGui>* arr)
 {
 	/*mainBuffer = arr;*/
 }
@@ -169,13 +169,11 @@ void DrumGui::checkForPathToOpen()
 				reader->lengthInSamples);
 
 			float fileSampleRate = reader->sampleRate;
-			DBG("fileSampleRate: " + String(fileSampleRate));
 			reader->read(newBuffer->getAudioSampleBuffer(), 0, reader->lengthInSamples, 0, true, true);
 			
 			//if the file's sample rate != our sample rate, resample it
 			if (sampleRate != fileSampleRate)
 			{
-				DBG("adjusting sample rate.");
 				AudioSampleBuffer* correctedBuff = adjustSampleRate(newBuffer->getAudioSampleBuffer(), fileSampleRate);
 				newBuffer->loadToBuffer(correctedBuff);
 				delete(correctedBuff);
@@ -225,9 +223,9 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 	return toReturn;
 }
 
-AudioSampleBuffer* DrumGui::adjustSampleRate(AudioSampleBuffer* buffer, float fileSampleRate)
+AudioSampleBuffer* DrumGui::adjustSampleRate(AudioSampleBuffer* buffer, double ratio)
 {
-	const double ratio = fileSampleRate / sampleRate;
+	//TODO: rewrite this. memory managment here sucks
 	const int length = buffer->getNumSamples();
 	const int newLength = length * (1 / ratio);
 	int numChannels = buffer->getNumChannels();
@@ -241,7 +239,6 @@ AudioSampleBuffer* DrumGui::adjustSampleRate(AudioSampleBuffer* buffer, float fi
 		arr[i] = toWriteTo;
 	}
 	AudioSampleBuffer* toReturn = new AudioSampleBuffer(arr, numChannels, 0, newLength);
-	toReturn->setDataToReferTo(arr, numChannels, newLength);
 	delete(arr);
 	return toReturn;
 }

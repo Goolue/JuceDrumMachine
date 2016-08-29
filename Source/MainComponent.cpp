@@ -100,13 +100,13 @@ public:
 	void resized() override
 	{
 		drum1->setBounds(10, 10, drum1->getTotalWidth(), drum1->getTotalHight());
-		drum2->setBounds(drum1->getX() + drum1->getTotalWidth() + 10, 0,
+		drum2->setBounds(drum1->getX() + drum1->getTotalWidth() + 10, drum1->getY(),
 			drum2->getTotalWidth(), drum2->getTotalHight());
 		drum3->setBounds(drum1->getX(), drum1->getY() + drum1->getTotalHight(),
 			drum3->getTotalWidth(), drum3->getTotalHight());
 		drum4->setBounds(drum2->getX(), drum3->getY(), drum4->getTotalWidth(), drum4->getTotalHight());
 
-		midiHandler.setBounds(0, drum4->getY() + drum4->getTotalHight(), 200, 20);
+		midiHandler.setBounds(0, drum4->getY() + drum4->getTotalHight(), 300, 200);
 	}
 
 	//the background thread's run func
