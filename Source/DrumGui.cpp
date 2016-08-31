@@ -174,7 +174,7 @@ void DrumGui::checkForPathToOpen()
 			//if the file's sample rate != our sample rate, resample it
 			if (sampleRate != fileSampleRate)
 			{
-				AudioSampleBuffer* correctedBuff = adjustSampleRate(newBuffer->getAudioSampleBuffer(), fileSampleRate);
+				AudioSampleBuffer* correctedBuff = adjustSampleRate(newBuffer->getAudioSampleBuffer(), fileSampleRate / sampleRate);
 				newBuffer->loadToBuffer(correctedBuff);
 				delete(correctedBuff);
 			}
@@ -223,7 +223,7 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 	return toReturn;
 }
 
-AudioSampleBuffer* DrumGui::adjustSampleRate(AudioSampleBuffer* buffer, double ratio)
+juce::AudioSampleBuffer* DrumGui::adjustSampleRate(juce::AudioSampleBuffer* buffer, double ratio)
 {
 	//TODO: rewrite this. memory managment here sucks
 	const int length = buffer->getNumSamples();

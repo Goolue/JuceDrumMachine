@@ -49,7 +49,7 @@ private:
 	void stop();
 	ReferenceCountedBuffer* createBuffToSend(); //creates a buffer with the sample
 												//and aplies the FX to it
-	AudioSampleBuffer* adjustSampleRate(AudioSampleBuffer* buffer, double ratio);
+	juce::AudioSampleBuffer* adjustSampleRate(juce::AudioSampleBuffer* buffer, double ratio);
 
 	//GUI elements:
 	TextButton openFileButton;

@@ -108,7 +108,7 @@ public:
 
 		midiHandler.setBounds(0, drum4->getY() + drum4->getTotalHight(), 300, 200);
 	}
-
+ 
 	//the background thread's run func
 	void run() override
 	{
