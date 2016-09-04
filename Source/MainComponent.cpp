@@ -1,8 +1,7 @@
 #ifndef MAINCOMPONENT_H_INCLUDED
 #define MAINCOMPONENT_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "../Builds/VisualStudio2013/MidiHandler.h"
+#include "MidiHandler.h" //includes all the things from drumGui aswell... 
 #include <vld.h> 
 
 class MainContentComponent : public AudioAppComponent, public Thread

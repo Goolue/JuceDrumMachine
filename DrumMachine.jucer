@@ -5,8 +5,22 @@
               jucerVersion="4.2.3">
   <MAINGROUP id="II4sCx" name="DrumMachine">
     <GROUP id="{055C8B06-A436-CE81-E47B-04065FDC6AB3}" name="Source">
-      <FILE id="f1PSyu" name="GUITest.cpp" compile="1" resource="0" file="Source/GUITest.cpp"/>
-      <FILE id="S1P646" name="GUITest.h" compile="0" resource="0" file="Source/GUITest.h"/>
+      <FILE id="C8s0Bp" name="ReferenceCountedPrimitiveArray.cpp" compile="1"
+            resource="0" file="Source/ReferenceCountedPrimitiveArray.cpp"/>
+      <FILE id="L0zZBW" name="ReferenceCountedPrimitiveArray.h" compile="0"
+            resource="0" file="Source/ReferenceCountedPrimitiveArray.h"/>
+      <FILE id="zPGj1E" name="DrumGui.cpp" compile="1" resource="0" file="Source/DrumGui.cpp"/>
+      <FILE id="EVCQTV" name="DrumGui.h" compile="0" resource="0" file="Source/DrumGui.h"/>
+      <FILE id="kAArLl" name="filterGui.cpp" compile="1" resource="0" file="Source/filterGui.cpp"/>
+      <FILE id="sAUsEx" name="filterGui.h" compile="0" resource="0" file="Source/filterGui.h"/>
+      <FILE id="YacLEK" name="MidiHandler.cpp" compile="1" resource="0" file="Source/MidiHandler.cpp"/>
+      <FILE id="XdQ6Kp" name="MidiHandler.h" compile="0" resource="0" file="Source/MidiHandler.h"/>
+      <FILE id="Cettgk" name="ReferenceCountedBuffer.cpp" compile="1" resource="0"
+            file="Source/ReferenceCountedBuffer.cpp"/>
+      <FILE id="D5xMOS" name="ReferenceCountedBuffer.h" compile="0" resource="0"
+            file="Source/ReferenceCountedBuffer.h"/>
+      <FILE id="KParln" name="VolumeGui.cpp" compile="1" resource="0" file="Source/VolumeGui.cpp"/>
+      <FILE id="Y6Luay" name="VolumeGui.h" compile="0" resource="0" file="Source/VolumeGui.h"/>
       <FILE id="dbq2Ni" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="Na2y67" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

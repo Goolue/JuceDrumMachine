@@ -2,7 +2,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"
 #include "FilterGui.h"
-#include "../Builds/VisualStudio2013/VolumeGui.h"
+#include "VolumeGui.h"
+//#include "ReferenceCountedPrimitiveArray.h"
 
 using namespace juce;
 
@@ -49,7 +50,7 @@ private:
 	void stop();
 	ReferenceCountedBuffer* createBuffToSend(); //creates a buffer with the sample
 												//and aplies the FX to it
-	juce::AudioSampleBuffer* adjustSampleRate(juce::AudioSampleBuffer* buffer, double ratio);
+	void adjustSampleRate(ReferenceCountedBuffer::Ptr buffer, double ratio);
 
 	//GUI elements:
 	TextButton openFileButton;
@@ -68,6 +69,5 @@ private:
 	ReferenceCountedArray<ReferenceCountedBuffer>* mainBuffer;
 	LagrangeInterpolator interpolator;
 	ReferenceCountedBuffer::Ptr buffToPlay;
-	
 };
 

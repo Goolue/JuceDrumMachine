@@ -1,5 +1,6 @@
 #include "DrumGui.h"
 
+
 DrumGui::DrumGui(juce::ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
 	: Thread("DrumGui Thread"), sampleRate(0), currVelovity(1),
 	state(Stopped), mainBuffer(_arr), buffToPlay(nullptr)
@@ -154,6 +155,7 @@ void DrumGui::playButtonClicked()
 
 void DrumGui::checkForPathToOpen()
 {
+	//TODO: leaking here
 	String pathToOpen;
 	swapVariables(pathToOpen, chosenFilePath);
 
@@ -174,15 +176,13 @@ void DrumGui::checkForPathToOpen()
 			//if the file's sample rate != our sample rate, resample it
 			if (sampleRate != fileSampleRate)
 			{
-				AudioSampleBuffer* correctedBuff = adjustSampleRate(newBuffer->getAudioSampleBuffer(), fileSampleRate / sampleRate);
-				newBuffer->loadToBuffer(correctedBuff);
-				delete(correctedBuff);
+				adjustSampleRate(newBuffer, fileSampleRate / sampleRate);
 			}
 
 			buffToPlay = nullptr; //clean it
 			buffToPlay = newBuffer;
 
-			const MessageManagerLock mmLock;
+			const MessageManagerLock mmLock; //synchronization
 			playButton.setEnabled(true);
 		}
 		else
@@ -223,22 +223,26 @@ ReferenceCountedBuffer* DrumGui::createBuffToSend()
 	return toReturn;
 }
 
-juce::AudioSampleBuffer* DrumGui::adjustSampleRate(juce::AudioSampleBuffer* buffer, double ratio)
+void DrumGui::adjustSampleRate(ReferenceCountedBuffer::Ptr refCountedBuff, double ratio)
 {
 	//TODO: rewrite this. memory managment here sucks
+	AudioSampleBuffer* buffer = refCountedBuff->getAudioSampleBuffer();
 	const int length = buffer->getNumSamples();
 	const int newLength = length * (1 / ratio);
 	int numChannels = buffer->getNumChannels();
-	float** arr = new float*[numChannels];
+	ScopedPointer<float*> arr = new float*[numChannels];
 	for (int i = 0; i < numChannels; ++i)
 	{
 		interpolator.reset();
 		const float* toReadFrom = buffer->getReadPointer(i);
-		float* toWriteTo = new float[newLength];
+		float* toWriteTo = new float[newLength]; //TODO: find a better way of doing this
 		interpolator.process(ratio, toReadFrom, toWriteTo, newLength);
 		arr[i] = toWriteTo;
 	}
-	AudioSampleBuffer* toReturn = new AudioSampleBuffer(arr, numChannels, 0, newLength);
-	delete(arr);
-	return toReturn;
+	AudioSampleBuffer result (arr.get(), numChannels, 0, newLength);
+	refCountedBuff->loadToBuffer(&result);
+	for (int i = 0; i < numChannels; ++i) //TODO: i dont like this
+	{
+		delete(arr[i]);
+	}
 }

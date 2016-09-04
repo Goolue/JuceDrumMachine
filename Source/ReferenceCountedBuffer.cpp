@@ -1,6 +1,3 @@
-//#ifndef MAINCOMPONENT_H_INCLUDED
-//#define MAINCOMPONENT_H_INCLUDED
-
 #include "ReferenceCountedBuffer.h"
 
 ReferenceCountedBuffer::ReferenceCountedBuffer(const String& nameToUse, int numChannels, int numSamples)
