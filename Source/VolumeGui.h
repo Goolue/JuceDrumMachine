@@ -1,7 +1,4 @@
-#include "juce_core/juce_core.h"
-#include "../JuceLibraryCode/JuceHeader.h"
-
-class ReferenceCountedBuffer;
+#include "../Builds/VisualStudio2013/PitchShifter.h"
 
 class VolumeGui : public Component,  public Slider::Listener
 {
@@ -14,6 +11,8 @@ public:
 	void setSampleRate(double rate);
 	int getTotalWidth() const;
 	int getTotalHight() const;
+	void setMaxDecay(double value);
+	void initPitchShifter(int sampleRate, int numChannels, int buffSize) const;
 
 private:
 	//funcs:
@@ -30,6 +29,7 @@ private:
 	Slider attackSlider;
 	ScopedPointer<Label> decayLbl;
 	Slider decaySlider;
+	ScopedPointer<PitchShifter> pitchShifter;
 
 	//vars:
 	bool isOn;

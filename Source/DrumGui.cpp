@@ -155,7 +155,6 @@ void DrumGui::playButtonClicked()
 
 void DrumGui::checkForPathToOpen()
 {
-	//TODO: leaking here
 	String pathToOpen;
 	swapVariables(pathToOpen, chosenFilePath);
 
@@ -183,6 +182,8 @@ void DrumGui::checkForPathToOpen()
 			buffToPlay = newBuffer;
 
 			const MessageManagerLock mmLock; //synchronization
+			volume.setMaxDecay(calcLengthInSeconds(buffToPlay->getAudioSampleBuffer()->getNumSamples())); //set the decay time
+
 			playButton.setEnabled(true);
 		}
 		else
@@ -246,3 +247,13 @@ void DrumGui::adjustSampleRate(ReferenceCountedBuffer::Ptr refCountedBuff, doubl
 		delete(arr[i]);
 	}
 }
+
+double DrumGui::calcLengthInSeconds(int numOfSamples) const
+{
+	if (sampleRate > 0)
+	{
+		return numOfSamples / sampleRate;
+	}
+	return 0;
+}
+

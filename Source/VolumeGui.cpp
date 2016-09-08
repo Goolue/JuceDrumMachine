@@ -31,12 +31,13 @@ VolumeGui::VolumeGui() : isOn(false), volume(1.0), attack(0), decay(3)
 	addAndMakeVisible(decayLbl = new Label("decay lable",
 		TRANS("Decay")));
 	configLable(attackLbl);
+
+	addAndMakeVisible(pitchShifter = new PitchShifter());
 	
 	reset();
 
 	setSize(130, 120);
 }
-
 
 VolumeGui::~VolumeGui()
 {
@@ -53,6 +54,7 @@ void VolumeGui::resized()
 	attackSlider.setBounds(attackLbl->getX(), attackLbl->getY() + attackLbl->getHeight(), 65, 40);
 	decayLbl->setBounds(volSlider.getX(), volSlider.getY() + volSlider.getHeight(), 60, 20);
 	decaySlider.setBounds(decayLbl->getX(), decayLbl->getY() + decayLbl->getHeight(), 65, 40);
+	pitchShifter->setBounds(decayLbl->getX() + decayLbl->getWidth() + 10, decayLbl->getY(), 65, 70);
 }
 
 void VolumeGui::process(juce::AudioSampleBuffer* buff, float velocity) const
@@ -88,6 +90,18 @@ void VolumeGui::process(juce::AudioSampleBuffer* buff, float velocity) const
 			buff->applyGainRamp(0, buffSize, 1, calcDecay(buffSize, decayInSamples));
 		}
 		buff->applyGain(volume * velocity);
+
+		//apply pitch shift:
+		if (pitchShifter->getPitshShift() != 0)
+		{
+			initPitchShifter(sampleRate, buff->getNumChannels(), buff->getNumSamples());
+
+			for (int i = 0; i < buff->getNumChannels(); ++i)
+			{
+				float* samples = buff->getWritePointer(i);
+				pitchShifter->processOneChannel(samples);
+			}
+		}
 	}
 	else
 	{
@@ -124,6 +138,20 @@ void VolumeGui::setSampleRate(double rate)
 int VolumeGui::getTotalWidth() const
 {
 	return volSlider.getWidth() + attackSlider.getWidth() + 10;
+}
+
+void VolumeGui::setMaxDecay(double value)
+{
+	//decaySlider.setMaxValue(value);
+	resized();
+}
+
+void VolumeGui::initPitchShifter(int sampleRate, int numChannels, int buffSize) const
+{
+	pitchShifter->setSampleRate(sampleRate);
+	pitchShifter->setNumChannels(numChannels);
+	pitchShifter->setBuffSize(buffSize);
+	pitchShifter->setSoundTouch();
 }
 
 //*********privates*********

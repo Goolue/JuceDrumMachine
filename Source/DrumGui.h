@@ -3,7 +3,6 @@
 #include "ReferenceCountedBuffer.h"
 #include "FilterGui.h"
 #include "VolumeGui.h"
-//#include "ReferenceCountedPrimitiveArray.h"
 
 using namespace juce;
 
@@ -51,6 +50,7 @@ private:
 	ReferenceCountedBuffer* createBuffToSend(); //creates a buffer with the sample
 												//and aplies the FX to it
 	void adjustSampleRate(ReferenceCountedBuffer::Ptr buffer, double ratio);
+	double calcLengthInSeconds(int numOfSamples) const;
 
 	//GUI elements:
 	TextButton openFileButton;
