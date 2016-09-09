@@ -9,16 +9,18 @@ VolumeGui::VolumeGui() : isOn(false), volume(1.0), attack(0), decay(3)
 	volSlider.setSkewFactor(0.6); //TODO: figure out better volume settings
 
 	addAndMakeVisible(&attackSlider);
-	attackSlider.setRange(0.0, 3.0, 0.01);
+	//attackSlider.setRange(0.0, 3.0, 0.01);
 	attackSlider.addListener(this);
 	attackSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 	attackSlider.showTextBox();
+	attackSlider.setEnabled(false);
 
 	addAndMakeVisible(&decaySlider);
-	decaySlider.setRange(0.0, 3.0, 0.01);
+	//decaySlider.setRange(0.0, 3.0, 0.01);
 	decaySlider.addListener(this);
 	decaySlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 	decaySlider.showTextBox();
+	decaySlider.setEnabled(false);
 
 	addAndMakeVisible(volLbl = new Label("volume lable",
 		TRANS("Volume")));
@@ -147,17 +149,20 @@ int VolumeGui::getTotalWidth() const
 	return volSlider.getWidth() + attackSlider.getWidth() + 10;
 }
 
-void VolumeGui::setMaxDecay(double value)
-{
-	//decaySlider.setMaxValue(value);
-	resized();
-}
-
 void VolumeGui::initPitchShifter(int sampleRate, int buffSize) const
 {
 	pitchShifter->setSampleRate(sampleRate);
 	pitchShifter->setBuffSize(buffSize);
 	pitchShifter->setSoundTouch();
+}
+
+void VolumeGui::setMaxAttackAndDecay(double value)
+{
+	setMaxDecay(value);
+	setMaxAttack(value);
+	decaySlider.setEnabled(true);
+	attackSlider.setEnabled(true);
+	resized();
 }
 
 //*********privates*********
@@ -208,3 +213,16 @@ float VolumeGui::calcDecay(int buffSize, int decayInSamples) const
 	float angle = 1 / decayInSamples; //that is the complimentary angle
 	return 1 - angle * buffSize;
 }
+
+void VolumeGui::setMaxDecay(double value)
+{
+	decaySlider.setRange(0.0, value, 0.01);
+	decaySlider.setValue(value);
+	decay = value;
+}
+
+void VolumeGui::setMaxAttack(double value)
+{
+	attackSlider.setRange(0.0, value, 0.01);
+}
+

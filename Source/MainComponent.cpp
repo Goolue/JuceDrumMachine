@@ -2,7 +2,7 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "MidiHandler.h" //includes all the things from drumGui aswell... 
-//#include <vld.h> 
+#include <vld.h> 
 
 class MainContentComponent : public AudioAppComponent, public Thread
 {

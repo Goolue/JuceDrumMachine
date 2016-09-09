@@ -25,7 +25,6 @@ DrumGui::DrumGui(juce::ReferenceCountedArray<ReferenceCountedBuffer>* _arr)
 	startThread();
 }
 
-
 DrumGui::~DrumGui()
 {
 	//volLbl = nullptr;
@@ -72,7 +71,6 @@ void DrumGui::run()
 		wait(-1); //wait till notify
 	}
 }
-
 
 int DrumGui::getTotalHight() const
 {
@@ -182,7 +180,7 @@ void DrumGui::checkForPathToOpen()
 			buffToPlay = newBuffer;
 
 			const MessageManagerLock mmLock; //synchronization
-			volume.setMaxDecay(calcLengthInSeconds(buffToPlay->getAudioSampleBuffer()->getNumSamples())); //set the decay time
+			volume.setMaxAttackAndDecay(calcLengthInSeconds(buffToPlay->getAudioSampleBuffer()->getNumSamples()));
 
 			playButton.setEnabled(true);
 		}

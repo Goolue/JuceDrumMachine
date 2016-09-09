@@ -11,8 +11,8 @@ public:
 	void setSampleRate(double rate);
 	int getTotalWidth() const;
 	int getTotalHight() const;
-	void setMaxDecay(double value);
 	void initPitchShifter(int sampleRate, int buffSize) const;
+	void setMaxAttackAndDecay(double value);
 
 private:
 	//funcs:
@@ -21,6 +21,8 @@ private:
 	int secToSamples(float secs) const;
 	float calcAttack(int buffSize, int attackInSamples) const;
 	float calcDecay(int buffSize, int decayInSamples) const;
+	void setMaxDecay(double value);
+	void setMaxAttack(double value);
 
 	//GUI elements:
 	ScopedPointer<Label> volLbl;
