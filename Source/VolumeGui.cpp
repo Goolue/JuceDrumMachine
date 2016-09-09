@@ -94,12 +94,19 @@ void VolumeGui::process(juce::AudioSampleBuffer* buff, float velocity) const
 		//apply pitch shift:
 		if (pitchShifter->getPitshShift() != 0)
 		{
-			initPitchShifter(sampleRate, buff->getNumChannels(), buff->getNumSamples());
+			int size = buff->getNumSamples();
+			initPitchShifter(sampleRate, size);
 
 			for (int i = 0; i < buff->getNumChannels(); ++i)
 			{
-				float* samples = buff->getWritePointer(i);
-				pitchShifter->processOneChannel(samples);
+				//const float* read = buff->getReadPointer(i);
+				//float* processed = pitchShifter->processOneChannel(read);
+				//buff->copyFrom(i, 0, processed, size); //copy processed into buff
+				////delete[] processed; //TODO: find better solution to mem management
+
+				float* input = buff->getWritePointer(i);
+				pitchShifter->processOneChannel(input);
+				pitchShifter->clear();
 			}
 		}
 	}
@@ -146,10 +153,9 @@ void VolumeGui::setMaxDecay(double value)
 	resized();
 }
 
-void VolumeGui::initPitchShifter(int sampleRate, int numChannels, int buffSize) const
+void VolumeGui::initPitchShifter(int sampleRate, int buffSize) const
 {
 	pitchShifter->setSampleRate(sampleRate);
-	pitchShifter->setNumChannels(numChannels);
 	pitchShifter->setBuffSize(buffSize);
 	pitchShifter->setSoundTouch();
 }

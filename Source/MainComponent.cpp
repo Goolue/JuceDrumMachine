@@ -2,7 +2,7 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "MidiHandler.h" //includes all the things from drumGui aswell... 
-#include <vld.h> 
+//#include <vld.h> 
 
 class MainContentComponent : public AudioAppComponent, public Thread
 {
@@ -134,7 +134,7 @@ private:
 	}
 
 	//this function checks the stopped flag, if true cleans all
-	//buffers that have played al of their data
+	//buffers that have played all of their data
 	void checkStopped()
 	{
 		if (stopped)
@@ -144,7 +144,7 @@ private:
 				auto obj = buffers.getObjectPointer(i);
 				if (checkBuffIsAtEndPosition(obj))
 				{
-					buffers.removeObject(obj);
+					buffers.remove(i);
 				}
 			}
 			stopped = false;

@@ -12,7 +12,7 @@ public:
 	int getTotalWidth() const;
 	int getTotalHight() const;
 	void setMaxDecay(double value);
-	void initPitchShifter(int sampleRate, int numChannels, int buffSize) const;
+	void initPitchShifter(int sampleRate, int buffSize) const;
 
 private:
 	//funcs:

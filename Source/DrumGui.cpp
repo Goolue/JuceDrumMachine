@@ -123,10 +123,10 @@ void DrumGui::changeState(PlayState newState)
 			if (sampleRate > 0 && buffToPlay != nullptr)
 			{
 				filter.calcCoef(sampleRate);
-				buffToPlay->setPosition(0); //make sure the buffers position is at the start
+				buffToPlay->setPosition(0);		//make sure the buffers position is at the start
 				ReferenceCountedBuffer* toSend = createBuffToSend();
-				mainBuffer->add(toSend); //add the buffer to the array so 
-										//the MainComponent can play it
+				mainBuffer->add(toSend);		//add the buffer to the array so 
+												//the MainComponent can play it
 			}
 			break;
 		}
